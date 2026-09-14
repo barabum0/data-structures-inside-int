@@ -24,32 +24,51 @@ static void build_table(void)
      * Пока таблица просто обнуляется, чтобы скелет собирался без
      * предупреждений; эту строку замените своим циклом.
      */
-    for (int i = 0; i < 256; i++)
-        byte_bits[i] = 0;
+    for (int i = 0; i < 256; i++) {
+        for (int idx = 31; idx >= 0; idx--) {
+            if ((i >> idx) & 1u) {
+                byte_bits[i]++;
+            };
+        };
+    };
 }
 
 /* Цикл по всем 32 битам. Всегда ровно 32 итерации. */
 static int popcount_naive(uint32_t v)
 {
-    /* TODO */
-    (void)v;
-    return -1;
+    int ones = 0;
+
+    for (int idx = 31; idx >= 0; idx--) {
+        if ((v >> idx) & 1u) {
+            ones++;
+        };
+    };
+
+    return ones;
 }
 
 /* v &= v - 1 в цикле. Итераций столько, сколько единиц. */
 static int popcount_kernighan(uint32_t v)
 {
-    /* TODO */
-    (void)v;
-    return -1;
+    int ones = 0;
+
+    while (v) {
+        v &= v - 1;
+        ones++;
+    };
+
+    return ones;
 }
 
 /* Четыре обращения к таблице. Достать i-й байт: (v >> (8 * i)) & 0xFFu */
 static int popcount_table(uint32_t v)
 {
-    /* TODO */
-    (void)v;
-    return -1;
+    int ones = 0;
+    for (int byte = 0; byte <=3; byte++) {
+        ones = ones + byte_bits[(v >> (8 * byte)) & 0xFFu];
+    };
+
+    return ones;
 }
 
 /* Печатает строку отчёта для одного числа. Возвращает 1, если три способа
