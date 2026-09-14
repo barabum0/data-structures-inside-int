@@ -14,11 +14,28 @@
  */
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include <string.h>
 #include <limits.h>
 
 /* Кладут результат в *out и возвращают true, если он поместился в int.
    Если не поместился — возвращают false, а *out не трогают. */
+
+static bool safe_sub(int a, int b, int *out)
+{
+    if (b > 0) {
+        if (a < INT_MIN + b) {
+            return false;
+        }
+    } else if (b < 0) {
+        if (a > INT_MAX + b) {
+            return false;
+        }
+    }
+
+    *out = a - b;
+    return true;
+}
 
 static bool safe_add(int a, int b, int *out)
 {
@@ -26,26 +43,45 @@ static bool safe_add(int a, int b, int *out)
      * Начните с вопроса: если b зафиксировано и положительно, при каком
      * наибольшем a сумма ещё помещается в int? Потом разберите b < 0.
      */
-    (void)a; (void)b; (void)out;
-    return false;
-}
+    if (b > 0) {
+        if (a > INT_MAX - b)
+            return false;
+    } else if (b < 0) {
+        if (a < INT_MIN - b)
+            return false;
+    }
 
-static bool safe_sub(int a, int b, int *out)
-{
-    /* TODO
-     * Через safe_add выразить не выйдет: -INT_MIN в int не помещается.
-     */
-    (void)a; (void)b; (void)out;
-    return false;
+    *out = a + b;
+    return true;
 }
 
 static bool safe_mul(int a, int b, int *out)
 {
-    /* TODO
-     * Разберите случаи по знакам. Отдельно a == 0 и b == 0, отдельно -1.
-     */
-    (void)a; (void)b; (void)out;
-    return false;
+    if (a == 0 || b == 0) {
+        *out = 0;
+        return true;
+    }
+
+    if (a > 0) {
+        if (b > 0) {
+            if (a > INT_MAX / b)
+                return false;
+        } else {
+            if (b < INT_MIN / a)
+                return false;
+        }
+    } else {
+        if (b > 0) {
+            if (a < INT_MIN / b)
+                return false;
+        } else {
+            if (a < INT_MAX / b)
+                return false;
+        }
+    }
+
+    *out = a * b;
+    return true;
 }
 
 /* Печатает одну строку отчёта. op — "add", "sub" или "mul". */
