@@ -8,6 +8,7 @@
  * функции пока возвращают заведомо неверное. Ваша работа — их тела; main и
  * печать менять не нужно.
  */
+#include <limits.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -16,33 +17,52 @@
 /* Сумма n элементов. Тип результата шире int намеренно. */
 static long long sum(const int *a, size_t n)
 {
-    /* TODO */
-    (void)a; (void)n;
-    return 0;
+    long long sum = 0;
+    for (int i = 0; i < n; i++) {
+        int item = a[i];
+        sum = sum + item;
+    }
+
+    return sum;
 }
 
 /* Наименьший элемент. Вызывается только при n > 0 — проверку делает main. */
 static int minimum(const int *a, size_t n)
 {
-    /* TODO */
-    (void)a; (void)n;
-    return 0;
+    int min = INT_MAX;
+    for (int i = 0; i < n; i++) {
+        int item =a[i];
+        if (item < min) {
+            min = item;
+        }
+    }
+    return min;
 }
 
 /* Наибольший элемент. Вызывается только при n > 0. */
 static int maximum(const int *a, size_t n)
 {
-    /* TODO */
-    (void)a; (void)n;
-    return 0;
+    int max = INT_MIN;
+    for (int i = 0; i < n; i++) {
+        int item = a[i];
+        if (item > max) {
+            max = item;
+        }
+    }
+    return max;
 }
 
 /* Сколько раз value встречается среди n элементов. */
 static size_t count_equal(const int *a, size_t n, int value)
 {
-    /* TODO */
-    (void)a; (void)n; (void)value;
-    return 0;
+    int count = 0;
+    for (int i = 0; i < n; i++) {
+        int item = a[i];
+        if (item == value) {
+            count++;
+        }
+    }
+    return count;
 }
 
 static void report(const int *a, size_t n)

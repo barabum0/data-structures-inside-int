@@ -18,8 +18,9 @@
 /* Копирует n элементов из src в dst циклом от начала к концу. */
 static void copy_forward(int *dst, const int *src, size_t n)
 {
-    /* TODO */
-    (void)dst; (void)src; (void)n;
+    for (size_t i = 0; i < n; ++i) {
+        dst[i] = src[i];
+    }
 }
 
 /* Копирует n элементов из src в dst циклом от конца к началу.
@@ -27,34 +28,45 @@ static void copy_forward(int *dst, const int *src, size_t n)
        for (size_t i = n; i-- > 0; ) ... */
 static void copy_backward(int *dst, const int *src, size_t n)
 {
-    /* TODO */
-    (void)dst; (void)src; (void)n;
+    for (size_t i = n; i-- > 0; ) {
+        dst[i] = src[i];
+    }
 }
 
 /* Копирует n элементов корректно при любом взаимном расположении участков.
    Ровно одно сравнение указателей и два вызова. */
 static void move_range(int *dst, const int *src, size_t n)
 {
-    /* TODO */
-    (void)dst; (void)src; (void)n;
+    if (dst < src) {
+        copy_forward(dst, src, n);
+    } else {
+        copy_backward(dst, src, n);
+    }
 }
 
 /* Удаляет элемент на позиции pos. Возвращает новую длину.
    Копировать ничего не надо: один вызов move_range. */
 static size_t delete_at(int *a, size_t n, size_t pos)
 {
-    /* TODO */
-    (void)a; (void)pos;
-    return n;
+    if (pos >= n) {
+        return n;
+    }
+
+    move_range(a + pos, a + pos + 1, n - pos - 1);
+    return n - 1;
 }
 
 /* Вставляет value на позицию pos. Возвращает новую длину, а если места нет
    или позиция за пределами — прежнюю. */
 static size_t insert_at(int *a, size_t n, size_t cap, size_t pos, int value)
 {
-    /* TODO */
-    (void)a; (void)cap; (void)pos; (void)value;
-    return n;
+    if (n >= cap || pos > n) {
+        return n;
+    }
+
+    move_range(a + pos + 1, a + pos, n - pos);
+    a[pos] = value;
+    return n + 1;
 }
 
 static void print_row(const char *label, const int *a, size_t n)
