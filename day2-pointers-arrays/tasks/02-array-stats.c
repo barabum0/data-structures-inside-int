@@ -52,10 +52,27 @@ static int maximum(const int *a, size_t n)
     return max;
 }
 
+static void minmax(const int *a, size_t n, int *max, int *min)
+{
+    *max = INT_MIN;
+    *min = INT_MAX;
+    for (int i = 0; i < n; i++) {
+        int item = a[i];
+        if (item > *max) {
+            *max = item;
+        }
+
+        if (item < *min) {
+            *min = item;
+        }
+    }
+}
+
 /* Сколько раз value встречается среди n элементов. */
 static size_t count_equal(const int *a, size_t n, int value)
 {
-    int count = 0;
+    size_t count = 0;
+
     for (int i = 0; i < n; i++) {
         int item = a[i];
         if (item == value) {

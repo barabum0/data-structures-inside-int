@@ -28,22 +28,33 @@ static void print_list(const char *label, int *const *list, size_t n)
     /* TODO
      * Элемент списка — это адрес. Напечатать надо то, что лежит по нему.
      */
-    (void)list; (void)n;
     printf("%s\n", label);
+    for (int i = 0; i < n; i++) {
+        printf("%d ", *list[i]);
+    }
 }
 
 /* Копирует n адресов из src в dst. Сами числа не трогает. */
 static void copy_pointers(int **dst, int *const *src, size_t n)
 {
-    /* TODO */
-    (void)dst; (void)src; (void)n;
+    for (int i = 0; i < n; i++) {
+        dst[i] = src[i];
+    }
 }
 
 /* Копирует n чисел в storage, а в dst кладёт адреса копий. */
 static void copy_values(int **dst, int *const *src, size_t n, int *storage)
 {
-    /* TODO */
-    (void)dst; (void)src; (void)n; (void)storage;
+    for (int i = 0; i < n; i++) {
+        storage[i] = *src[i];
+        dst[i] = &storage[i];
+    }
+}
+
+static void swap_refs(int **reflist, size_t i, size_t j) {
+    int *t = reflist[i];
+    reflist[i] = reflist[j];
+    reflist[j] = t;
 }
 
 /* Один прогон: строит список ссылок на values и показывает разницу между
@@ -176,15 +187,35 @@ static int self_check(void)
 
 int main(int argc, char **argv)
 {
-    if (argc > 1 && strcmp(argv[1], "--check") == 0)
-        return self_check() ? 1 : 0;
+    // if (argc > 1 && strcmp(argv[1], "--check") == 0)
+    //     return self_check() ? 1 : 0;
 
-    int values[CAP];
-    size_t n = 0;
-    int v;
-    while (n < CAP && scanf("%d", &v) == 1)
-        values[n++] = v;
+    // int values[CAP];
+    // size_t n = 0;
+    // int v;
+    // while (n < CAP && scanf("%d", &v) == 1)
+    //     values[n++] = v;
 
-    run(values, n);
+    // run(values, n);
+
+    int a[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+    int *a_ref[10];
+    for (int i = 0; i < 10; i++) {
+        a_ref[i] = &a[i];
+    }
+
+    swap_refs(a_ref, 2, 4);
+
+    for (int i = 0; i < 10; i++) {
+        printf("%d ", a[i]);
+    }
+
+    printf("\n");
+
+    for (int i = 0; i < 10; i++) {
+        printf("%d ", *a_ref[i]);
+    }
+
     return 0;
 }

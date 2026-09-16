@@ -13,6 +13,8 @@
  * записала, и предупреждает о чтении незаполненной памяти — совершенно
  * справедливо. Как только read_array будет написана, предупреждение исчезнет.
  */
+
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -39,7 +41,17 @@ static int *alloc_array(size_t n)
      * Вторая — что делать при n == 0. Решение за вами, но оно должно быть
      * согласовано с тем, как main отличает пустой массив от нехватки памяти.
      */
-    int *a = malloc(n * sizeof *a);
+
+    if (n == 0) {
+        return NULL;
+    }
+
+    int *a;
+    if (n > SIZE_MAX / sizeof *a) {
+        return NULL;
+    }
+
+    a = malloc(n * sizeof *a);
     return a;
 }
 
@@ -52,16 +64,23 @@ static bool read_array(int *a, size_t n)
      * в свежем блоке. Соберите её через make и посмотрите на эти числа: они
      * все одинаковые, и это тот самый мусор из демонстрации 02-uninitialized.
      */
-    (void)a; (void)n;
-    return true;
+    size_t i = 0;
+    int v;
+    while (i < n && scanf("%d", &v) == 1) {
+        a[i++] = v;
+    }
+
+    return i >= n;
 }
 
 /* Сумма n элементов. Тип результата шире int намеренно. */
 static long long sum(const int *a, size_t n)
 {
-    /* TODO */
-    (void)a; (void)n;
-    return 0;
+    long long sum = 0;
+    for (size_t i = 0; i < n; i++) {
+        sum += a[i];
+    }
+    return sum;
 }
 
 /* Выделяет новый блок и переносит в него n элементов из a.
@@ -73,8 +92,16 @@ static int *copy_array(const int *a, size_t n)
      * Не забудьте проверить её результат и перенести элементы — сейчас
      * возвращается блок, в который никто ничего не положил.
      */
-    (void)a;
-    return alloc_array(n);
+    int *new = alloc_array(n);
+    if (new == NULL) {
+        return NULL;
+    }
+
+    for (size_t i = 0; i < n; i++) {
+        new[i] = a[i];
+    }
+
+    return new;
 }
 
 /* Один прогон: выделить, прочитать, посчитать, показать копию и алиас. */

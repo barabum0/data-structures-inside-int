@@ -6,8 +6,8 @@ void reverse(int *a, size_t n) {
     int t;
     for (size_t i = 0; i < (n/2); i++) {
         t = a[i];
-        a[i] = a[n - i -1];
-        a[n - i -1] = t;
+        a[i] = a[n - i - 1];
+        a[n - i - 1] = t;
     }
 };
 
@@ -21,6 +21,20 @@ void rotate_left(int *a, size_t n, size_t k) {
 
     reverse(a, k);
     reverse(a + k, n - k);
+    reverse(a, n);
+};
+
+
+void rotate_right(int *a, size_t n, size_t k) {
+    if (n == 0) {
+        // при сдвиге на 0 ничего не происходит
+        return;
+    }
+
+    k %= n;
+
+    reverse(a, n - k);
+    reverse(a + k, k);
     reverse(a, n);
 };
 

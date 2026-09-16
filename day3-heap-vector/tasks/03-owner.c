@@ -19,32 +19,72 @@
    ВЛАДЕЛЕЦ — вызывающий. NULL, если участок за границами или нет памяти. */
 static int *slice(const int *a, size_t n, size_t from, size_t count)
 {
-    /* TODO
-     * Проверка границ без вычитания в size_t: from > n || count > n - from.
-     */
-    (void)a; (void)n; (void)from; (void)count;
-    return NULL;
+    if (from + count > n) {
+        return NULL;
+    }
+
+    int *new = malloc(count * sizeof *new);
+    if (new == NULL) {
+        return NULL;
+    };
+
+    for (size_t i = 0; i < count; i++) {
+        new[i] = a[from+i];
+    }
+
+    return new;
 }
 
 /* Возвращает новый блок из na + nb элементов: сначала a, потом b.
    ВЛАДЕЛЕЦ — вызывающий. */
 static int *concat(const int *a, size_t na, const int *b, size_t nb)
 {
-    /* TODO */
-    (void)a; (void)na; (void)b; (void)nb;
-    return NULL;
+    if (na+nb == 0) {
+        return NULL;
+    }
+
+    int *new = malloc((na+nb) * sizeof *new);
+
+    if (new == NULL) {
+        return NULL;
+    }
+
+    for (size_t i = 0; i < na; i++) {
+        new[i] = a[i];
+    }
+
+    for (size_t i = 0; i < nb; i++) {
+        new[i+na] = b[i];
+    }
+
+    return new;
 }
 
 /* Возвращает новый блок, в котором a повторён times раз.
    ВЛАДЕЛЕЦ — вызывающий. */
 static int *repeat(const int *a, size_t n, size_t times)
 {
-    /* TODO
-     * n * times считается в size_t и может переполниться. Проверка до
-     * умножения.
-     */
-    (void)a; (void)n; (void)times;
-    return NULL;
+    if (n * times == 0) {
+        int *new = malloc(0);
+        return new;
+    }
+
+    if (n > SIZE_MAX / times) {
+        return NULL;
+    }
+
+    int *new = malloc((n*times) * sizeof *new);
+    if (new == NULL) {
+        return NULL;
+    }
+
+    for (size_t t = 0; t < times; t++) {
+        for (size_t i = 0; i < n; i++) {
+            new[i + t*n] = a[i];
+        }
+    }
+
+    return new;
 }
 
 static void print_array(const char *label, const int *a, size_t n)

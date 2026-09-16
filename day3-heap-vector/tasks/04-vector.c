@@ -31,8 +31,9 @@ static bool verbose = true;
 
 static void vec_init(struct Vec *v)
 {
-    /* TODO: пустой вектор — это NULL, 0, 0. */
-    (void)v;
+    v->data = NULL;
+    v->len = 0;
+    v->cap = 0;
 }
 
 static void vec_free(struct Vec *v)
@@ -41,7 +42,8 @@ static void vec_free(struct Vec *v)
      * После вызова структура должна описывать корректный пустой вектор:
      * повторный vec_free ничего не ломает.
      */
-    (void)v;
+    free(v->data);
+    vec_init(v);
 }
 
 /* Обеспечивает вместимость не меньше need. Единственное место во всей
@@ -49,28 +51,75 @@ static void vec_free(struct Vec *v)
    делает и realloc не зовёт. */
 static bool vec_reserve(struct Vec *v, size_t need)
 {
-    /* TODO
-     * Удваивайте текущую вместимость, пока её не хватает. Нулевая вместимость —
-     * отдельный случай: посчитайте, что даст удвоение, прежде чем писать
-     * формулу.
-     *
-     * Результат realloc кладите во временную переменную: при неудаче вектор
-     * должен остаться прежним и пригодным к работе.
-     *
-     * Когда переезд действительно случился, увеличьте stat_growths и
-     * stat_copied и напечатайте журнальную строку — но только если verbose:
-     *     printf("  (рост %zu -> %zu, перенесено %zu)\n", старая, новая, v->len);
-     */
-    (void)v; (void)need;
-    return false;
+    if (v->cap >= need) {
+        return true;
+    }
+
+    size_t new_cap;
+
+    if (v->cap == 0) {
+        new_cap = 4;
+    } else {
+        new_cap = v->cap;
+    }
+
+    while (new_cap < need) {
+        new_cap *= 2;
+    }
+
+    int *new_data = realloc(v->data, new_cap * sizeof *new_data);
+
+    if (new_data == NULL) {
+        return false;
+    }
+
+    if (verbose) {
+        printf(
+            "  (рост %zu -> %zu, перенесено %zu)\n",
+            v->cap,
+            new_cap,
+            v->len
+        );
+    }
+
+    stat_growths += 1;
+    stat_copied += v->len;
+
+    v->data = new_data;
+    v->cap = new_cap;
+
+    return true;
+}
+
+/* Копирует n элементов из src в dst циклом от начала к концу. */
+static void copy_forward(int *dst, const int *src, size_t n)
+{
+    for (size_t i = 0; i < n; ++i) {
+        dst[i] = src[i];
+    }
+}
+
+/* Копирует n элементов из src в dst циклом от конца к началу.
+   Идиома обратного цикла по size_t, в которой нет вычитания из нуля:
+       for (size_t i = n; i-- > 0; ) ... */
+static void copy_backward(int *dst, const int *src, size_t n)
+{
+    for (size_t i = n; i-- > 0; ) {
+        dst[i] = src[i];
+    }
 }
 
 /* Сдвиг участка. Возьмите тело из вчерашней задачи и не забудьте про
    stat_moved. */
 static void move_range(int *dst, const int *src, size_t n)
 {
-    /* TODO */
-    (void)dst; (void)src; (void)n;
+    if (dst < src) {
+        copy_forward(dst, src, n);
+    } else {
+        copy_backward(dst, src, n);
+    }
+
+    stat_moved += n;
 }
 
 static bool vec_push(struct Vec *v, int value)
@@ -79,33 +128,62 @@ static bool vec_push(struct Vec *v, int value)
        самому здесь нечего. */
     if (!vec_reserve(v, v->len + 1))
         return false;
-    (void)value;
-    return false;
+
+    v->data[v->len] = value;
+    v->len += 1;
+
+    return true;
 }
 
 static bool vec_pop(struct Vec *v, int *out)
 {
-    /* TODO: false, если вектор пуст. */
-    (void)v; (void)out;
-    return false;
+    if (v->len == 0) {
+        return false;
+    }
+
+    v->len -= 1;
+    *out = v->data[v->len];
+
+    return true;
 }
 
 static bool vec_insert(struct Vec *v, size_t pos, int value)
 {
-    /* TODO
-     * pos == v->len — законная позиция, это добавление в конец.
-     * Хвост двигает move_range; аргументы посчитайте на бумаге, как вчера.
-     */
-    (void)v; (void)pos; (void)value;
-    (void)move_range;   /* уберите, когда начнёте её вызывать */
-    return false;
+    if (pos > v->len) {
+        return false;
+    }
+
+    if (!vec_reserve(v, v->len + 1)) {
+        return false;
+    }
+
+    move_range(
+        v->data + pos + 1,
+        v->data + pos,
+        v->len - pos
+    );
+
+    v->data[pos] = value;
+    v->len += 1;
+
+    return true;
 }
 
 static bool vec_erase(struct Vec *v, size_t pos)
 {
-    /* TODO */
-    (void)v; (void)pos;
-    return false;
+    if (pos >= v->len) {
+        return false;
+    }
+
+    move_range(
+        v->data + pos,
+        v->data + pos + 1,
+        v->len - pos - 1
+    );
+
+    v->len -= 1;
+
+    return true;
 }
 
 static void vec_print(const struct Vec *v)
