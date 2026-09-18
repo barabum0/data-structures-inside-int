@@ -35,6 +35,11 @@ static int *slice(const int *a, size_t n, size_t from, size_t count)
     return new;
 }
 
+static int *last_k(const int *a, size_t n, size_t k)
+{
+    return slice(a, n, n-k-1, k);
+}
+
 /* Возвращает новый блок из na + nb элементов: сначала a, потом b.
    ВЛАДЕЛЕЦ — вызывающий. */
 static int *concat(const int *a, size_t na, const int *b, size_t nb)

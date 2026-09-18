@@ -18,40 +18,64 @@
 /* Длина строки: сколько байт до завершающего нуля, не считая его. */
 static size_t my_strlen(const char *s)
 {
-    /* TODO */
-    (void)s;
-    return 0;
+    size_t len = 0;
+    while (s[len++] != '\0') { }
+
+    return len;
 }
 
 /* Копирование вместе с завершающим нулём. Места в dst достаточно. */
 static void my_strcpy(char *dst, const char *src)
 {
-    /* TODO: не забудьте про байт, которого не видно. */
-    (void)dst; (void)src;
+    size_t i = 0;
+    while (src[i] != '\0') {
+        dst[i] = src[i];
+        i++;
+    }
+    dst[i] = '\0';
 }
 
 /* Сравнение по кодам символов: 0 при совпадении, отрицательное, если a
    меньше b, положительное, если больше. */
 static int my_strcmp(const char *a, const char *b)
 {
-    /* TODO: сравнивать надо unsigned char — почему, сказано в условии. */
-    (void)a; (void)b;
-    return 0;
+    while (*a != '\0' && *a == *b) {
+        a++;
+        b++;
+    }
+
+    return (unsigned char)*a - (unsigned char)*b;
 }
 
 /* Адрес первого вхождения c в строку, либо NULL, если его там нет. */
-static char *my_strchr(const char *s, char c)
+static const char *my_strchr(const char *s, char c)
 {
-    /* TODO */
-    (void)s; (void)c;
-    return NULL;
+    const char *fc = NULL;
+    while (1) {
+        if (*s == c) {
+            fc = s;
+            break;
+        }
+
+        if (*s == '\0') {
+            break;
+        }
+        s++;
+    }
+    return fc;
 }
 
 /* Переворот строки на месте. Новой памяти не выделяется. */
 static void my_reverse(char *s)
 {
-    /* TODO */
-    (void)s;
+    size_t len = my_strlen(s);
+
+    int t;
+    for (size_t i = 0; i < (len/2); i++) {
+        t = s[i];
+        s[i] = s[len - i - 1];
+        s[len - i - 1] = t;
+    }
 }
 
 /* ── работа программы ──────────────────────────────────────────────────── */

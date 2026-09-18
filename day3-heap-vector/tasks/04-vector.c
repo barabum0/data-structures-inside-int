@@ -46,6 +46,18 @@ static void vec_free(struct Vec *v)
     vec_init(v);
 }
 
+static void vec_clear(struct Vec *v)
+{
+    v->len = 0;
+}
+
+/*
+ * vec_clear()
+ * len -> 0
+ * data останется
+ * vec_push()
+ */
+
 /* Обеспечивает вместимость не меньше need. Единственное место во всей
    программе, где вызывается realloc. Если вместимости уже хватает — ничего не
    делает и realloc не зовёт. */

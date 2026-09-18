@@ -27,15 +27,16 @@ int *grow(int *a, size_t len, size_t new_cap) {
 }
 
 int main() {
-    int *a = malloc(1 * sizeof *a);
-    size_t old_cap = 1;
+    size_t old_cap = 4;
+    int *a = malloc(old_cap * sizeof *a);
 
     size_t grow_amount = 0;
     size_t i = 0;
     int v;
     while (scanf("%d", &v) == 1) {
         if (i++ >= old_cap - 1) {
-            size_t new_cap = old_cap + 1;
+            size_t new_cap = (old_cap * 3) / 2 + (old_cap % 2);
+            // size_t new_cap = old_cap * 2;
             int *new = grow(a, old_cap, new_cap);
             if (new == NULL) {
                 return 1;
